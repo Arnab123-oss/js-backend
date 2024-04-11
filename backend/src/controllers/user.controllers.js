@@ -4,6 +4,7 @@ import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -159,7 +160,7 @@ export const logoutUser = asyncHandler(async (req, res, next) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: {
+      $unset: {
         refreshToken: 1,
       },
     },
@@ -358,10 +359,10 @@ export const getUserChannelProfile = asyncHandler(async (req, res, next) => {
     {
       $addFields: {
         subscribersCount: {
-          $size: "subscribers",
+          $size: "$subscribers",
         },
         channelSubscribedToCount: {
-          $size: "subscribedTo",
+          $size: "$subscribedTo",
         },
         isSubscribed: {
           $cond: {
