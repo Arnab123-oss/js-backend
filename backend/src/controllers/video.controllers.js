@@ -18,7 +18,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     return next(new ErrorHandler(400, "Invaild User ID"));
   }
 
-  const allVideos = await Video.aggregate([
+  const getAllVideos = await Video.aggregate([
     {
       $match: {
         isPublished: true,
@@ -75,6 +75,9 @@ const getAllVideos = asyncHandler(async (req, res) => {
     },
  
   ]);
-
+  
+  if(getAllVideos[0].videos?.length){
+    return next(new ErrorHandler(402, "You should try lower page number"));
+  }
 
 });
