@@ -6,7 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler";
 import { uploadOnCloudinary } from "../utils/cloudinary";
 
-const getAllVideos = asyncHandler(async (req, res) => {
+export const getAllVideos = asyncHandler(async (req, res,next) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
   //TODO: get all videos based on query, sort, pagination
   const sortTypeNum = Number(sortType) || -1;
@@ -22,6 +22,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     {
       $match: {
         isPublished: true,
+        $text:{$search:query}
       },
     },
     {
@@ -76,8 +77,20 @@ const getAllVideos = asyncHandler(async (req, res) => {
  
   ]);
   
-  if(getAllVideos[0].videos?.length){
+  if(!getAllVideos[0].videos?.length){
     return next(new ErrorHandler(402, "You should try lower page number"));
   }
-
+ return res
+ .status(200)
+ .json(
+    new ApiResponse(200, getAllVideos[0], "All videos fetched successfully")
+  );
 });
+
+const publishAVideo = asyncHandler(async (req, res) => {
+  const { title, description} = req.body
+  // TODO: get video, upload to cloudinary, create video
+
+
+
+})
