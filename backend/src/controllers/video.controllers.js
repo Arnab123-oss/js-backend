@@ -87,10 +87,14 @@ export const getAllVideos = asyncHandler(async (req, res,next) => {
   );
 });
 
-const publishAVideo = asyncHandler(async (req, res) => {
+export const publishAVideo = asyncHandler(async (req, res) => {
   const { title, description} = req.body
   // TODO: get video, upload to cloudinary, create video
-
+  if ([title, description].some((field) => field?.trim() === "")) {
+    throw new APIError(400, "All fields are required");
+  }
+  
+const videoLocalpath = req.files?.videoFile[0]?.path
 
 
 })
