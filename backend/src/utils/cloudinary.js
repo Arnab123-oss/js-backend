@@ -25,4 +25,20 @@ const uploadOnCloudinary = async (localFilePath) => {
   }
 };
 
-export { uploadOnCloudinary };
+// Function to get duration of a video uploaded to Cloudinary
+const getVideoDuration = async (publicId) => {
+  try {
+    // Fetch video information from Cloudinary
+    const videoInfo = await cloudinary.api.resource(publicId, { video: true });
+    
+    // Extract duration from the video information
+    const duration = videoInfo.duration;
+    
+    return duration;
+  } catch (error) {
+    console.error('Error fetching video duration from Cloudinary:', error);
+    throw error;
+  }
+};
+
+export { uploadOnCloudinary,getVideoDuration };
