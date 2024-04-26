@@ -3,8 +3,8 @@ import { Video } from "../models/video.models.js";
 import { User } from "../models/user.models.js";
 import { ErrorHandler } from "../utils/ErrorHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { asyncHandler } from "../utils/asyncHandler";
-import { uploadOnCloudinary, getVideoDuration } from "../utils/cloudinary";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { uploadOnCloudinary, getVideoDuration } from "../utils/cloudinary.js";
 
 export const getAllVideos = asyncHandler(async (req, res, next) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
@@ -89,7 +89,7 @@ export const publishAVideo = asyncHandler(async (req, res, next) => {
   const { title, description } = req.body;
   // TODO: get video, upload to cloudinary, create video
   if ([title, description].some((field) => field?.trim() === "")) {
-    throw new APIError(400, "All fields are required");
+    return next(new ErrorHandler(400, "All fields are required"));
   }
 
   const videoLocalpath = req.files?.videoFile[0]?.path;
@@ -134,4 +134,52 @@ export const publishAVideo = asyncHandler(async (req, res, next) => {
   return res
     .status(200)
     .json(ApiResponse(200, video, "Video uploaded successfully"));
+});
+
+export const getVideoById = asyncHandler(async (req, res, next) => {
+  const { videoId } = req.params;
+  //TODO: get video by id
+
+  if (!isValidObjectId(videoId) && !videoId?.trim()) {
+    return next(new ErrorHandler(400, "Invalid videoId."));
+  }
+  const searchVideo = await Video.findById(videoId);
+
+  if (searchVideo) {
+    await User.findByIdAndUpdate(
+      req.user?._id,
+      {
+        $addToSet: { watchHistory: searchVideo._id },
+      },
+      { new: true }
+    );
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, searchVideo, "Video fetched successfully"));
+});
+
+export const updateVideo = asyncHandler(async (req, res,next) => {
+
+  //TODO: update video details like title, description, thumbnail
+
+  const { videoId } = req.params;
+  const { title, description } = req.body;
+
+  if (!isValidObjectId(videoId) && !videoId?.trim()) {
+    return next(new ErrorHandler(400, "Invalid videoId."));
+  }
+
+  let thumbnailLocalpath 
+
+  if (
+    req.files &&
+    Array.isArray(req.files.thumbnail) &&
+    req.files.thumbnail.length > 0
+  ) {
+    thumbnailLocalpath = req.files?.thumbnail[0]?.path;
+  }
+
+
 });
