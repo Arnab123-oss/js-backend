@@ -41,4 +41,22 @@ const getVideoDuration = async (publicId) => {
   }
 };
 
-export { uploadOnCloudinary,getVideoDuration };
+const deleteImageFromCloudinary = async (publicUrl) => {
+  try {
+    const publicId = publicUrl.split(".")[2].split("/").slice(5).join("/");
+    cloudinary.api
+      .delete_resources(publicId)
+      .then((result) => {
+        return result;
+      })
+      .catch((error) => {
+        console.log(`🔴☁️ Error 1 while deleting files ${error}`);
+        return null;
+      });
+  } catch (error) {
+    console.log(`🔴☁️ Error 2 while deleting files ${error}`);
+    return null;
+  }
+};
+
+export { uploadOnCloudinary,getVideoDuration,deleteImageFromCloudinary };
